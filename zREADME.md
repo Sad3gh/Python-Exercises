@@ -1,8 +1,8 @@
-These are all the exercises I am tackling with in my python programming journey. 
-all codes and logics have been implemented by myself.
+These are all the exercises I am tackling with in my python programming learning journey. 
+all the codes and logics have been implemented by myself.
 I am showcasing what I learn. 
-time to time I add to this.
-for a better undestanding of what these exercises are about I will write a brief description of each problem(file):
+time to time I add more exercises to this repository.
+for a better undestanding of what these exercises are about, I will write a brief description of each problem(file):
 ------------------------------
 1- PRIME FACTORIZATION : write a program to calculate all prime factors of a given number.
 -------------------------------
