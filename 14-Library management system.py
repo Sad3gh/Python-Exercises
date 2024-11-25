@@ -1,3 +1,6 @@
+import json
+
+
 class Book:
     def __init__(self, title, author, isbn):
         """
@@ -68,23 +71,23 @@ class Library:
         self.books.append(book)
         print(f"Added book: {book}")
 
-    def register_patron(self,patron):
+    def register_patron(self, patron):
         """ Register a new patron in the library """
         self.patrons.append(patron)
         print(f"Registered patron: {patron}")
 
-    def find_book(self,title):
+    def find_book(self, title):
         """ Find a book by its title """
         for book in self.books:
             if book.title.lower() == title.lower():
-                return book     # The book is found.
-        return "Book not found."   # Return not found message.
+                return book  # The book is found.
+        return "Book not found."  # Return not found message.
 
-    def find_patron(self,name):
-        """ Find a patron by their name """
+    def find_patron(self, patron_id):
+        """ Find a patron by their ID """
         for patron in self.patrons:
-            if patron.name.lower() == name.lower():
-                return patron      # The patron is found.
+            if patron.patron_id == patron_id:
+                return patron  # The patron is found.
         return "Patron no found."  # Return not found message.
 
     def display_books(self):
@@ -106,9 +109,37 @@ class Library:
                 print(patron)  # Calling the __str__ method of the patron
 
 
+def save_data(library):
+    """Save library data to a JSON file."""
+    data = {
+        'books': [{'title': book.title, 'author': book.author, 'isbn': book.isbn, 'availability': book.availability} for
+                  book in library.books],
+        'patrons': [{'name': patron.name, 'patron_id': patron.patron_id} for patron in library.patrons]
+    }
+    with open('library_data.json', 'w') as f:
+        json.dump(data, f)
+
+
+def load_data(library):
+    """Load library data from a JSON file."""
+    try:
+        with open('library_data.json', 'r') as f:
+            data = json.load(f)
+            for book_data in data['books']:
+                book = Book(book_data['title'], book_data['author'], book_data['isbn'])
+                book.availability = book_data['availability']
+                library.add_book(book)
+            for patron_data in data['patrons']:
+                patron = Patron(patron_data['name'], patron_data['patron_id'])
+                library.register_patron(patron)
+    except FileNotFoundError:
+        print("No saved data found.")
+
+
 def main():
     """ Main function to run the library management system """
-    library = Library()    # Creating an instance of the Library class
+    library = Library()  # Creating an instance of the Library class
+    load_data(library)  # Load data at the start
     while True:
         # Displaying menu options to the user
         print("\nWelcome to the Library Management System!")
@@ -142,9 +173,13 @@ def main():
                 book = library.find_book(title)  # Find the book
                 if isinstance(book, Book):  # Check if the book was found
                     patron.borrow_book(book)  # Borrow the book
+                else:
+                    print("Book not found.")
+            else:
+                print("Patron not found.")
 
         elif choice == '4':  # Return Book
-            patron_id = input("Enter patron ID: ")
+            patron_id = input("Enter patron ID: ").strip()
             patron = library.find_patron(patron_id)  # Find the patron
             if isinstance(patron, Patron):  # Check if the patron was found
                 title = input("Enter book title to return: ")
@@ -159,6 +194,7 @@ def main():
             library.display_patrons()  # Show all registered patrons
 
         elif choice == '7':  # Exit
+            save_data(library)
             print("Goodbye!")  # Exit message
             break  # Break the loop to exit
 
