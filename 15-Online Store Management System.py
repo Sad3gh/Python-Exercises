@@ -1,9 +1,5 @@
 import json
-from json import dumps
 from json import JSONDecodeError
-from typing import TypeAlias, TextIO
-
-JSON: TypeAlias = dict[str, "JSON"] | list["JSON"] | str | int | float | bool | None
 
 
 class Product:
