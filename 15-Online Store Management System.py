@@ -42,7 +42,7 @@ class Customer:
         self.address = address
 
     def to_dict(self):
-        """This function returns the dictionary format of our Product class
+        """This function returns the dictionary format of our Customer class
             which is a format that can be easily Serialized into JSON.
         """
         return {
@@ -75,7 +75,7 @@ class Order:
         self.total_price = ordered_product.price * quantity
 
     def to_dict(self):
-        """This function returns the dictionary format of our Product class
+        """This function returns the dictionary format of our Order class
            which is a format that can be easily Serialized into JSON.
         """
         return {
