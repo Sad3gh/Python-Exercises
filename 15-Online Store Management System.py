@@ -1,6 +1,9 @@
 import json
+from json import dumps
 from json import JSONDecodeError
-import io
+from typing import TypeAlias, TextIO
+
+JSON: TypeAlias = dict[str, "JSON"] | list["JSON"] | str | int | float | bool | None
 
 
 class Product:
@@ -9,6 +12,17 @@ class Product:
         self.price = price
         self.quantity = quantity
         self.description = description
+
+    def to_dict(self):
+        """This function returns the dictionary format of our Product class
+            which is a format that can be easily Serialized into JSON.
+        """
+        return {
+            'name': self.name,
+            'price': self.price,
+            'quantity': self.quantity,
+            'description': self.description
+        }
 
     def update_quantity(self, amount):
         """ Update the quantity of the product. Positive amount increases
@@ -31,6 +45,16 @@ class Customer:
         self.email = email
         self.address = address
 
+    def to_dict(self):
+        """This function returns the dictionary format of our Product class
+            which is a format that can be easily Serialized into JSON.
+        """
+        return {
+            'name': self.name,
+            'email': self.email,
+            'address': self.address
+        }
+
     def place_order(self, ordered_product, quantity):
         """ Place an order for a product if available """
         if quantity <= 0:
@@ -50,13 +74,24 @@ class Customer:
 class Order:
     def __init__(self, customer, ordered_product, quantity):
         self.customer = customer
-        self.product = ordered_product
+        self.ordered_product = ordered_product
         self.quantity = quantity
         self.total_price = ordered_product.price * quantity
 
+    def to_dict(self):
+        """This function returns the dictionary format of our Product class
+           which is a format that can be easily Serialized into JSON.
+        """
+        return {
+            'customer': self.customer.to_dict(),  # Convert Customer to dict
+            'ordered_product': self.ordered_product.to_dict(),  # Convert Product to dict
+            'quantity': self.quantity,
+            'total_price': self.total_price
+        }
+
     def __str__(self):
-        return (f"Order for {self.customer.name}: {self.quantity} x {self.product.name} "
-                f"@ {self.product.price:.2f} each. Total: ${self.product.price:.2f}")
+        return (f"Order for {self.customer.name}: {self.quantity} x {self.ordered_product.name} "
+                f"@ {self.ordered_product.price:.2f} each. Total: ${self.total_price:.2f}")
 
 
 class Store:
@@ -101,15 +136,20 @@ class Store:
             print(order)
 
     def save_data(self, filename='store_data.json'):
-        """ Save products, customers, and orders to a JSON file."""
+        """Save products, customers, and orders to a JSON file.
+           Pay attention how we used to_dict methods in each of our list comprehensions below. we did that
+           because of the conversion of the object instances to a format (dictionary here) that can be
+           easily serialized into JSON.
+        """
         data = {
-            'products': [vars(product) for product in self.products],
-            'customers': [vars(customer) for customer in self.customers],
-            'orders': [vars(order) for order in self.orders]
+            'products': [product.to_dict() for product in self.products],
+            'customers': [customer.to_dict() for customer in self.customers],
+            'orders': [order.to_dict() for order in self.orders]
         }
-        with open(filename, 'w', encoding='utf-8') as f:  # f is a TextIO object
+
+        with open(filename, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=4)
-            print("Data saved to ",filename)
+            print("Data saved to", filename)
 
     def load_data(self, filename='store_data.json'):
         """Loads products,customers and orders from a JSON file. """
@@ -129,7 +169,7 @@ class Store:
 
 def main():
     store = Store()
-
+    store.load_data()
     while True:
         print("\n--- Online Store Management System ---")
         print("1. Add Product")
@@ -178,6 +218,7 @@ def main():
             store.display_orders()
 
         elif choice == '6':
+            store.save_data()  # Save data before exiting
             print("Exiting the program. Goodbye!")
             break
 
